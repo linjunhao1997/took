@@ -1,0 +1,35 @@
+syntax = "proto3";
+option go_package="../took/pkg/account/accountpb;accountpb"; // protoc路径统一在项目根目录下，../是为了不同proto文件之间导入后生成的pb文件的导入的包正常
+
+package account; // proto下的包名，其他proto依赖此proto时用到
+
+service AccountService {
+    rpc LoadUser(LoadUserRequest) returns(UserResponse) {}
+    rpc LoadUsers(LoadUsersRequest) returns(UsersResponse) {}
+}
+
+message LoadUserRequest {
+    int32 id = 1;
+}
+
+message LoadUsersRequest {
+    repeated int32 id = 1;
+}
+
+message User {
+    int32  id = 1;
+    string username = 2;
+    string password = 3;
+    string phone = 4;
+    string email = 5;
+    bool disabled = 6;
+    string createdAt = 7;
+}
+
+message UsersResponse {
+    repeated User data = 1;
+}
+
+message UserResponse {
+    User data = 1;
+}

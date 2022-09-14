@@ -1,0 +1,37 @@
+syntax = "proto3";
+option go_package="../took/pkg/fileconsole/fileconsolepb;fileconsolepb"; // protoc路径统一在项目根目录下，../是为了不同proto文件之间导入后生成的pb文件的导入的包正常
+
+package file; // proto下的包名，其他proto依赖此proto时用到
+import "pkg/account/accountpb/user.proto";
+
+service FileService {
+    rpc LoadFile(LoadFileRequest) returns(FileResponse) {}
+    rpc LoadFiles(LoadFilesRequest) returns(FilesResponse) {}
+}
+
+message LoadFileRequest {
+    int32 id = 1;
+}
+
+message LoadFilesRequest {
+    repeated int32 id = 1;
+}
+
+message File {
+    int32  id = 1;
+    string name = 2;
+    int32  size = 3;
+    string type = 4;
+    string bucket = 5;
+    string createdAt = 6;
+    int32 creatorId = 7;
+    account.User creator = 8;
+}
+
+message FilesResponse {
+    repeated File data = 1;
+}
+
+message FileResponse {
+    File data = 1;
+}
