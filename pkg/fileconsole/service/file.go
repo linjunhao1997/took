@@ -1,9 +1,9 @@
-package fileconsole
+package service
 
 import (
 	"context"
-	"took/pkg/account"
-	"took/pkg/fileconsole/file"
+	accountService "took/pkg/account/service"
+	"took/pkg/fileconsole/domain/file"
 )
 
 type Service interface {
@@ -14,10 +14,10 @@ type Service interface {
 
 type service struct {
 	fileRepo       file.Repository
-	accountService account.Service
+	accountService accountService.AccountService
 }
 
-func NewFileConsoleService(fileRepo file.Repository, accountService account.Service) Service {
+func NewFileConsoleService(fileRepo file.Repository, accountService accountService.AccountService) Service {
 	return &service{
 		fileRepo,
 		accountService,

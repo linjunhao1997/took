@@ -8,8 +8,10 @@ import (
 	"google.golang.org/grpc/status"
 	"net"
 	"runtime/debug"
-	"took/pkg/account/accountpb"
-	"took/pkg/account/user"
+	grpc2 "took/pkg/account/api/v1/grpc"
+	account "took/pkg/account/api/v1/grpc/proto"
+	"took/pkg/account/domain/user"
+	"took/pkg/account/service"
 	"took/pkg/util"
 	"took/pkg/util/discovery"
 )
@@ -29,7 +31,7 @@ func runWeb(addr string, errc <-chan error) {
 
 }
 
-func RunGrpc(srvName, addr, port string, errc chan<- error) {
+func RunGrpc(srvName, addr, port string, errCh chan<- error) {
 	var opts = []grpc.ServerOption{
 		grpc_middleware.WithUnaryServerChain(
 			RecoveryInterceptor,
@@ -38,20 +40,24 @@ func RunGrpc(srvName, addr, port string, errc chan<- error) {
 	var grpcServer = grpc.NewServer(opts...)
 	db, err := util.NewDB("root:123456@tcp(192.168.100.100:3306)/account?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
-		errc <- err
+		errCh <- err
 		return
 	}
-	accountpb.RegisterAccountServiceServer(grpcServer, NewGrpcServiceServer(NewAccountService(user.NewUserRepository(db))))
+	account.RegisterAccountServiceServer(grpcServer, grpc2.NewGrpcServiceServer(service.NewAccountService(user.NewUserRepository(db))))
 
 	listener, err := net.Listen("tcp", addr+":"+port)
 	if err != nil {
-		errc <- err
-	}
-
-	if err := discovery.Register(srvName, addr, port); err != nil {
-		errc <- err
+		errCh <- err
 		return
 	}
 
-	errc <- grpcServer.Serve(listener)
+	if err = discovery.Register(srvName, addr, port); err != nil {
+		errCh <- err
+		return
+	}
+
+	if err = grpcServer.Serve(listener); err != nil {
+		errCh <- err
+		return
+	}
 }

@@ -1,28 +1,23 @@
 package main
 
 import (
-	"errors"
+	"flag"
 	"github.com/sirupsen/logrus"
-	"os"
-	"took/pkg/account"
-	"took/pkg/fileconsole"
+	"took/pkg/util/run"
+)
+
+var (
+	name = flag.String("name", "", "input service name")
+	addr = flag.String("addr", "127.0.0.1", "input addr")
+	port = flag.String("port", "9090", "input port")
+	t    = flag.String("type", "", "input service type, eg:http,grpc")
 )
 
 func main() {
-	errc := make(chan error)
 
-	if len(os.Args) > 2 {
-		serviceName := os.Args[1]
-		if serviceName == "fileconsole" {
-			go fileconsole.RunGrpc("fileconsole", "127.0.0.1", os.Args[2], errc)
-		} else if serviceName == "account" {
-			go account.RunGrpc("account", "127.0.0.1", os.Args[2], errc)
-		} else {
-			logrus.WithField("error", errors.New("service not exist")).Info("exit")
-		}
-	} else {
-		logrus.WithField("error", errors.New("please input service name")).Info("exit")
-	}
+	errCh := make(chan error)
+	flag.Parse()
 
-	logrus.WithField("error", <-errc).Info("exit")
+	go run.Funcs.RunServer(*name, *addr, *port, *t, errCh)
+	logrus.WithField("error", <-errCh).Info("exit")
 }

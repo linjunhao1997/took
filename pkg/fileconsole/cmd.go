@@ -9,9 +9,11 @@ import (
 	"net"
 	"runtime/debug"
 	"time"
-	"took/pkg/account"
-	"took/pkg/fileconsole/file"
-	"took/pkg/fileconsole/fileconsolepb"
+	grpc_account "took/pkg/account/api/v1/grpc"
+	grpc_fileconsole "took/pkg/fileconsole/api/v1/grpc"
+	fileconsole "took/pkg/fileconsole/api/v1/grpc/proto"
+	"took/pkg/fileconsole/domain/file"
+	"took/pkg/fileconsole/service"
 	"took/pkg/util"
 	"took/pkg/util/discovery"
 )
@@ -31,7 +33,7 @@ func runWeb(addr string, errc <-chan error) {
 
 }
 
-func RunGrpc(srvName, addr, port string, errc chan<- error) {
+func RunGrpc(srvName, addr, port string, errCh chan<- error) {
 	var opts = []grpc.ServerOption{
 		grpc_middleware.WithUnaryServerChain(
 			RecoveryInterceptor,
@@ -41,24 +43,29 @@ func RunGrpc(srvName, addr, port string, errc chan<- error) {
 	var grpcServer = grpc.NewServer(opts...)
 	db, err := util.NewDB("root:123456@tcp(192.168.100.100:3306)/fileconsole?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
-		errc <- err
+		errCh <- err
 		return
 	}
 
-	if err := discovery.Register(srvName, addr, port); err != nil {
-		errc <- err
+	if err = discovery.Register(srvName, addr, port); err != nil {
+		errCh <- err
 		return
 	}
-	accountService, err := account.NewGrpcService(3 * time.Second)
+	accountService, err := grpc_account.NewGrpcService(3 * time.Second)
 	if err != nil {
-		errc <- err
+		errCh <- err
+		return
 	}
-	fileconsolepb.RegisterFileServiceServer(grpcServer, NewGrpcServiceServer(NewFileConsoleService(file.NewFileRepository(db), accountService)))
+	fileconsole.RegisterFileServiceServer(grpcServer, grpc_fileconsole.NewGrpcServiceServer(service.NewFileConsoleService(file.NewFileRepository(db), accountService)))
 
 	listener, err := net.Listen("tcp", addr+":"+port)
 	if err != nil {
-		errc <- err
+		errCh <- err
+		return
 	}
 
-	errc <- grpcServer.Serve(listener)
+	if err = grpcServer.Serve(listener); err != nil {
+		errCh <- err
+		return
+	}
 }

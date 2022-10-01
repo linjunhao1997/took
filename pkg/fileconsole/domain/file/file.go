@@ -3,7 +3,7 @@ package file
 import (
 	"gorm.io/gorm"
 	"time"
-	"took/pkg/account/user"
+	"took/pkg/account/domain/user"
 )
 
 type File struct {

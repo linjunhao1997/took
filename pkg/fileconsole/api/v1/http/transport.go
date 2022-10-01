@@ -1,4 +1,4 @@
-package fileconsole
+package http
 
 import (
 	"context"
@@ -7,17 +7,19 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"net/http"
+	"took/pkg/fileconsole/endpoint"
+	"took/pkg/fileconsole/service"
 	"took/pkg/util/restful"
 )
 
-func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
+func MakeHandler(bs service.Service, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 		kithttp.ServerErrorEncoder(restful.EncErrResp),
 	}
 
 	loadFileHandler := kithttp.NewServer(
-		makeLoadFileEndpoint(bs),
+		endpoint.MakeLoadFileEndpoint(bs),
 		decodeLoadFileRequestByHttp,
 		restful.EncodeResp,
 		opts...,
@@ -35,5 +37,5 @@ func decodeLoadFileRequestByHttp(_ context.Context, r *http.Request) (interface{
 	if err != nil {
 		return nil, err
 	}
-	return loadFileRequest{Id: id}, nil
+	return endpoint.LoadFileRequest{Id: id}, nil
 }

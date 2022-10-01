@@ -1,25 +1,26 @@
-package fileconsole
+package grpc
 
 import (
 	"context"
 	"fmt"
 	"took/pkg/account/util"
-	"took/pkg/fileconsole/fileconsolepb"
+	fileconsole "took/pkg/fileconsole/api/v1/grpc/proto"
+	"took/pkg/fileconsole/endpoint"
 )
 
 func decodeLoadFileRequestByGrpc(_ context.Context, req interface{}) (interface{}, error) {
-	pb, ok := req.(*fileconsolepb.LoadFileRequest)
+	pb, ok := req.(*fileconsole.LoadFileRequest)
 	if !ok {
 		return nil, fmt.Errorf("grpc server decode request error")
 	}
-	request := loadFileRequest{
+	request := endpoint.LoadFileRequest{
 		Id: int(pb.Id),
 	}
 	return request, nil
 }
 
 func encodeLoadFileResponseByGrpc(_ context.Context, response interface{}) (interface{}, error) {
-	data, ok := response.(loadFileResponse)
+	data, ok := response.(endpoint.LoadFileResponse)
 	if !ok {
 		return nil, fmt.Errorf("grpc server encode response error (%T)", data)
 	}
@@ -28,8 +29,8 @@ func encodeLoadFileResponseByGrpc(_ context.Context, response interface{}) (inte
 		return nil, data.Err
 	}
 
-	resp := &fileconsolepb.FileResponse{
-		Data: &fileconsolepb.File{
+	resp := &fileconsole.FileResponse{
+		Data: &fileconsole.File{
 			Id:      int32(data.File.Id),
 			Name:    data.File.Name,
 			Size:    int32(data.File.Size),

@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
-	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	go.etcd.io/etcd/client/v3 v3.5.0
 	google.golang.org/grpc v1.40.0

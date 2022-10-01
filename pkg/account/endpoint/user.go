@@ -1,29 +1,28 @@
-package account
+package endpoint
 
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/sirupsen/logrus"
-	"took/pkg/account/user"
+	"took/pkg/account/domain/user"
+	"took/pkg/account/service"
 )
 
-type loadUserRequest struct {
+type LoadUserRequest struct {
 	Id int
 }
 
-type loadUserResponse struct {
+type LoadUserResponse struct {
 	User *user.User `json:"file,omitempty"`
 	Err  error      `json:"error,omitempty"`
 }
 
-func makeLoadUserEndpoint(s Service) endpoint.Endpoint {
+func MakeLoadUserEndpoint(s service.AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		logrus.Info("收到请求")
-		req := request.(loadUserRequest)
+		req := request.(LoadUserRequest)
 		user, err := s.LoadUser(ctx, req.Id)
 		if err != nil {
 			return nil, err
 		}
-		return loadUserResponse{User: user, Err: err}, nil
+		return LoadUserResponse{User: user, Err: err}, nil
 	}
 }

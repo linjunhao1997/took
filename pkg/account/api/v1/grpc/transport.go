@@ -1,30 +1,31 @@
-package account
+package grpc
 
 import (
 	"context"
 	"fmt"
-	"took/pkg/account/accountpb"
+	account "took/pkg/account/api/v1/grpc/proto"
+	"took/pkg/account/endpoint"
 )
 
 func decodeLoadUserRequestByGrpc(_ context.Context, req interface{}) (interface{}, error) {
-	accountpb, ok := req.(*accountpb.LoadUserRequest)
+	accountpb, ok := req.(*account.LoadUserRequest)
 	if !ok {
 		return nil, fmt.Errorf("grpc server decode request error")
 	}
-	request := loadUserRequest{
+	request := endpoint.LoadUserRequest{
 		Id: int(accountpb.Id),
 	}
 	return request, nil
 }
 
 func encodeLoadUserResponseByGrpc(_ context.Context, response interface{}) (interface{}, error) {
-	data, ok := response.(loadUserResponse)
+	data, ok := response.(endpoint.LoadUserResponse)
 	if !ok {
 		return nil, fmt.Errorf("grpc server encode response error (%T)", data)
 	}
 
-	resp := &accountpb.UserResponse{
-		Data: &accountpb.User{
+	resp := &account.UserResponse{
+		Data: &account.User{
 			Id:       int32(data.User.Id),
 			Username: data.User.Username,
 			Phone:    data.User.Phone,

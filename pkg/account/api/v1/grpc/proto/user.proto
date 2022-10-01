@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package="../took/pkg/account/accountpb;accountpb"; // protoc路径统一在项目根目录下，../是为了不同proto文件之间导入后生成的pb文件的导入的包正常
+option go_package="../took/pkg/account/api/v1/grpc/proto;account"; // protoc路径统一在项目根目录下，../是为了不同proto文件之间导入后生成的pb文件的导入的包正常
 
 package account; // proto下的包名，其他proto依赖此proto时用到
 
