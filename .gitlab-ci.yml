@@ -22,9 +22,13 @@ build-job:
   script:
     - echo "Compiling the code..."
     - echo "Compile complete."
+  tags:
+    - localrunner
 
 deploy-job:
   stage: deploy
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
+  tags:
+    - localrunner
