@@ -1,7 +1,7 @@
 FROM golang:1.18.1-alpine3.15 as builder
 WORKDIR /usr/src/app
-ENV GOPROXY=https://goproxy.cn
 ENV GO111MODULE=on
+    GOPROXY=https://goproxy.cn,direct
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories &&  apk add --no-cache upx ca-certificates tzdata
 COPY ./go.mod ./
