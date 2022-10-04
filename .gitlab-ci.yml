@@ -21,6 +21,7 @@ build-job:
   stage: build
   script:
     - echo "Compiling the code..."
+    - docker build -t took:{$CI_COMMIT_SHORT_SHA} .
     - echo "Compile complete."
   tags:
     - localrunner
